@@ -2,11 +2,15 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
 use App\Models\Bootcamp;
+use Illuminate\Http\Request;
+use App\Http\Requests\StoreBootcampRequest;
+use App\Http\Resources\BootcampCollection;
+use App\Http\Resources\BootcampResource;
 
 class BootcampController extends Controller
-{
+{   
+    
     /**
      * Display a listing of the resource.
      *
@@ -14,7 +18,13 @@ class BootcampController extends Controller
      */
     public function index()
     {
-       return Bootcamp::all();
+        //echo "mostrar todos los bootcamp";
+        //json es un metodo q trae los datos del response
+        //parametros, data a enviar al cliente
+        //          2, codigo de status http
+        return response()->json( 
+            [ new BootcampCollection(Bootcamp::all())
+        ], 200);
     }
 
     /**
@@ -23,15 +33,26 @@ class BootcampController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request)
+    public function store(StoreBootcampRequest $request)
     {
-        //1.traer el payload
-        $datos=$request->all();
-        //2.crear un nuevo bootcamp
-        Bootcamp::create($datos);
-        return "Bootcamp creado";
+        /*//1.establecer reglas de validacion
+        //2. Objeto validador
+        $v = validator::make($request->all(),$reglas);
+        //3. validar
+        if($v->fails()){
+            //response de error
+            return response()->json( ["success"=> false,
+            "error"=> $v->errors()
+            ], 422);
+        }
+       // echo "permite regitrar un nuevo bootcamp";
+       //1. traer el payload
+       //2. Crea nuevo bootcamp*/
+       return response()->json( 
+        ["success"=> true,
+        "data"=> new BootcampResource( Bootcamp::create($request->all()) )
+        ], 201);
     }
-
 
     /**
      * Display the specified resource.
@@ -41,9 +62,11 @@ class BootcampController extends Controller
      */
     public function show($id)
     {
-        return Bootcamp::find("$id");
+        //echo "mostrar un bootcamp especifico cuyo id sea $id"; 
+        return response()->json( ["success"=> true,
+        "data"=> Bootcamp::find($id)
+        ], 200);
     }
-
     /**
      * Update the specified resource in storage.
      *
@@ -53,11 +76,15 @@ class BootcampController extends Controller
      */
     public function update(Request $request, $id)
     {
-        //localizar el bootcamp con el id 
-        $b= Bootcamp::find("$id");
-        //2.actualizarlo con update
+        //echo "para actualizar un bootcamp cuyo id es : $id";
+        //localizar el bootcamp con el id
+        $b = Bootcamp::find($id);
+        //actualizar con update
         $b->update($request->all());
-        return "bootcamp actualizado";
+        return response()->json( 
+        [   "success"=> true,
+            "data"=> new BootcampResource ($b) 
+        ], 200);
     }
 
     /**
@@ -68,8 +95,11 @@ class BootcampController extends Controller
      */
     public function destroy($id)
     {
-        $b = Bootcamp::find($id);
-        $b->delete($id);
-        return "bootcamp eliminado";
+        //echo "elimina un bootcamp con id : $id";
+        $b=Bootcamp::find($id);
+        $b->delete();
+        return response()->json( ["success"=> true,
+        "data"=> $b 
+        ], 200);
     }
 }

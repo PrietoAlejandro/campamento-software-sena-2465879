@@ -3,6 +3,7 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\BootcampController;
+use App\Http\Controllers\CourseController;
 
 /*
 |--------------------------------------------------------------------------
@@ -27,3 +28,8 @@ Route::get('prueba', function()
 //ruta rest para la gestion de cambios de estados de los bootcamps
 
 Route::apiResource('bootcamps', BootcampController::class);
+
+Route::post('course/{idbootcamp}/create' , 
+[
+  CourseController::class,"store"
+]);
